@@ -1,0 +1,37 @@
+name: Grab Oracle VM - Tokyo
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # 每 10 分鐘觸發，job 內跑 8 分鐘
+  workflow_dispatch:           # 手動觸發用
+
+jobs:
+  grab-tokyo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install OCI SDK
+        run: pip install oci
+
+      - name: Run grab script
+        env:
+          OCI_USER:        ${{ secrets.OCI_USER }}
+          OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
+          OCI_TENANCY:     ${{ secrets.OCI_TENANCY }}
+          OCI_REGION:      ap-tokyo-1
+          OCI_KEY_CONTENT: ${{ secrets.OCI_KEY_CONTENT }}
+          SUBNET_ID:       ${{ secrets.SUBNET_ID_TOKYO }}
+          AD:              ${{ secrets.AD_TOKYO }}
+          IMAGE_ID:        ${{ secrets.IMAGE_ID_TOKYO }}
+          SSH_PUB_KEY:     ${{ secrets.SSH_PUB_KEY }}
+          TG_TOKEN:        ${{ secrets.TG_TOKEN }}
+          TG_CHAT:         ${{ secrets.TG_CHAT }}
+          LABEL:           "GHA-東京"
+        run: python grab_vm_gha.py

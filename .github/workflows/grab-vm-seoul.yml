@@ -1,0 +1,37 @@
+name: Grab Oracle VM - Seoul
+
+on:
+  schedule:
+    - cron: '5 */10 * * *'    # 與東京錯開 5 分鐘，避免同時觸發
+  workflow_dispatch:
+
+jobs:
+  grab-seoul:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install OCI SDK
+        run: pip install oci
+
+      - name: Run grab script
+        env:
+          OCI_USER:        ${{ secrets.SEOUL_OCI_USER }}
+          OCI_FINGERPRINT: ${{ secrets.SEOUL_OCI_FINGERPRINT }}
+          OCI_TENANCY:     ${{ secrets.SEOUL_OCI_TENANCY }}
+          OCI_REGION:      ap-seoul-1
+          OCI_KEY_CONTENT: ${{ secrets.SEOUL_OCI_KEY_CONTENT }}
+          SUBNET_ID:       ${{ secrets.SEOUL_SUBNET_ID }}
+          AD:              ${{ secrets.SEOUL_AD }}
+          IMAGE_ID:        ${{ secrets.SEOUL_IMAGE_ID }}
+          SSH_PUB_KEY:     ${{ secrets.SSH_PUB_KEY }}
+          TG_TOKEN:        ${{ secrets.TG_TOKEN }}
+          TG_CHAT:         ${{ secrets.TG_CHAT }}
+          LABEL:           "GHA-首爾"
+        run: python grab_vm_gha.py
