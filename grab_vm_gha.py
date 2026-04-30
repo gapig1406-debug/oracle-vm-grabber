@@ -50,8 +50,8 @@ def main():
     compute = oci.core.ComputeClient(config)
     log(f"=== [{LABEL}] 搶機開始 | Region: {OCI_REGION} | AD: {AD} ===")
 
-    # 每次 job 跑 8 分鐘（配合 cron */10），每 30 秒嘗試一次
-    JOB_MINUTES = 8
+    # 每次 job 跑 6 分鐘（配合 cron */10），每 30 秒嘗試一次
+    JOB_MINUTES = 6
     INTERVAL    = 30
     MAX_ROUNDS  = (JOB_MINUTES * 60) // INTERVAL
 
