@@ -1,0 +1,27 @@
+name: Keepalive (防止排程被自動停用)
+
+# GitHub 規定：排程 workflow 在 repo「60 天無 commit」後會被自動停用。
+# 搶機 workflow 每 10 分鐘跑很多次，但「執行」不算活動、只有 commit 才算，
+# 所以本 workflow 每週自動 commit 一次心跳，永久重置 60 天計時。
+
+on:
+  schedule:
+    - cron: '0 17 * * 0'   # 每週日 17:00 UTC = 台北週一 01:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump heartbeat
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .keepalive
+          git commit -m "chore: keepalive heartbeat [skip ci]" || { echo "no change"; exit 0; }
+          git push
